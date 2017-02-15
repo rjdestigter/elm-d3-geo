@@ -78,3 +78,15 @@ haversin x =
             sin (x / 2)
     in
         y * y
+
+
+(%%) : Float -> Float -> Float
+(%%) a b =
+    let
+        divided =
+            a / b
+
+        rest =
+            divided - (floor divided |> toFloat)
+    in
+        rest * b

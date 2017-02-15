@@ -7,16 +7,22 @@ compose : Composable -> Composable -> Composable
 compose a b =
     let
         invert =
-            case a.invert of
-                Just invertA ->
-                    case b.invert of
-                        Just invertB ->
-                            Just (\tuple -> invertA (invertB tuple))
+            case ( a.invert, b.invert ) of
+                ( Just invertA, Just invertB ) ->
+                    Just (\tuple -> invertA (invertB tuple))
 
-                        Nothing ->
-                            Nothing
-
-                Nothing ->
+                _ ->
                     Nothing
     in
-        Composable (\tuple -> b.apply (a.apply tuple)) invert
+        Composable
+            (\tuple ->
+                let
+                    k =
+                        Debug.log "tuple" tuple
+
+                    l =
+                        Debug.log "a.apply" (a.apply tuple)
+                in
+                    b.apply (a.apply tuple)
+            )
+            invert

@@ -1,11 +1,52 @@
 module D3.Geo.Rotation exposing (..)
 
 import D3.Geo.Types exposing (..)
-import D3.Geo.Math as Math exposing (tau)
+import D3.Geo.Math as Math exposing (tau, (%%))
 import D3.Geo.Compose exposing (compose)
 
 
--- [lambda > pi ? lambda - tau : lambda < -pi ? lambda + tau : lambda, phi]
+rad : Float -> Float
+rad n =
+    n * Math.radians
+
+
+deg : Float -> Float
+deg n =
+    n * Math.degrees
+
+
+rotate : ( Float, Float, Float ) -> Composable
+rotate ( rotateX, rotateY, rotateZ ) =
+    let
+        rotate_ : Composable
+        rotate_ =
+            rotateRadians
+                (rad rotateX)
+                (rad rotateY)
+                (rad rotateZ)
+
+        forward =
+            \( x, y ) ->
+                let
+                    ( cx, cy ) =
+                        rotate_.apply ( rad x, rad y )
+                in
+                    ( deg cx, deg cy )
+
+        forwardInvert =
+            \( x, y ) ->
+                let
+                    ( cx, cy ) =
+                        case rotate_.invert of
+                            Just invert ->
+                                invert ( rad x, rad y )
+
+                            Nothing ->
+                                ( 0, 0 )
+                in
+                    ( deg cx, deg cy )
+    in
+        Composable forward (Just forwardInvert)
 
 
 rotationIdentity_ : ( Float, Float ) -> ( Float, Float )
@@ -27,7 +68,10 @@ rotateRadians : Float -> Float -> Float -> Composable
 rotateRadians deltaLambda deltaPhi deltaGamma =
     let
         deltaLambda_mod_tau =
-            (round deltaLambda) % (round tau) |> toFloat
+            deltaLambda %% tau
+
+        f =
+            Debug.log "deltaLambda_mod_tau" deltaLambda_mod_tau
     in
         if deltaLambda_mod_tau > 0 then
             if (deltaPhi > 0 || deltaGamma > 0) then

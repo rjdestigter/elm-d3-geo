@@ -10,6 +10,7 @@ import GeoJson
         )
 import D3.Geo.Path exposing (path)
 import D3.Geo.Transform exposing (default)
+import D3.Geo.Rotation as Rotation exposing (..)
 import Html exposing (text)
 
 
@@ -26,5 +27,15 @@ main =
     let
         x =
             Debug.log "start" (path default samplePoint)
+
+        r =
+            rotateRadians 100 20 3
     in
-        text "Hello"
+        case
+            r.invert
+        of
+            Just invert ->
+                text (toString (r.apply ( 39, 50 )))
+
+            Nothing ->
+                text (toString (r.apply ( 39, 50 )))
